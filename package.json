@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/r-k-b/newsblur-feed-info#readme",
   "dependencies": {
+    "json-stable-stringify": "1.0.1",
     "ramda": "0.21.0",
     "rxjs": "5.0.0-beta.8",
     "uri.js": "0.1.3",
