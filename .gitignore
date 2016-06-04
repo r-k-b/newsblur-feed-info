@@ -31,3 +31,15 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
+
+# ide
+.idea/
+
+# some data that doesn't belong in the repo
+opml/ignore*.xml
+
+# compiled from typescript
+/dist/
+
+# type defs
+/typings/

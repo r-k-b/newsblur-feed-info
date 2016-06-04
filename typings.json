@@ -1,0 +1,11 @@
+{
+  "name": "@r-k-b/newsblur-feed-info",
+  "dependencies": {
+    "es6-promise": "registry:npm/es6-promise#3.0.0+20160211003958",
+    "tape": "registry:npm/tape#4.0.0+20160322235547"
+  },
+  "globalDependencies": {
+    "node": "registry:dt/node#6.0.0+20160602155235",
+    "xml2js": "registry:dt/xml2js#0.0.0+20160317120654"
+  }
+}

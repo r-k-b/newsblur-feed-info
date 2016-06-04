@@ -1,0 +1,38 @@
+{
+  "name": "@r-k-b/newsblur-feed-info",
+  "version": "1.0.0",
+  "description": "Messing around with cleaning up feed subscriptions in Newsblur.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test",
+    "build": "rm -rf dist/* && tsc",
+    "prepublish": "typings install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r-k-b/newsblur-feed-info.git"
+  },
+  "author": "Robert K. Bell <robert.k.bell@gmail.com> (https://github.com/r-k-b)",
+  "license": "GPL-3.0",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/r-k-b/newsblur-feed-info/issues"
+  },
+  "homepage": "https://github.com/r-k-b/newsblur-feed-info#readme",
+  "dependencies": {
+    "ramda": "0.21.0",
+    "rxjs": "5.0.0-beta.8",
+    "uri.js": "0.1.3",
+    "urijs": "1.18.1",
+    "xml2js": "0.4.16"
+  },
+  "devDependencies": {
+    "tap-spec": "4.1.1",
+    "tape": "4.5.1",
+    "tape-watch": "2.1.0",
+    "typescript": "1.8.10",
+    "typings": "1.0.4"
+  }
+}
