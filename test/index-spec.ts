@@ -15,6 +15,17 @@ test('readfile and rxjs', t => {
 });
 
 
+test('writefile and rxjs', t => {
+    t.equal(
+        index.writeFileStream('./foo')('foo') instanceof Observable,
+        true,
+        'it should return an Observable'
+    );
+
+    t.end();
+});
+
+
 test('map a xml file into an object', t => {
     t.plan(1);
 

@@ -1,18 +1,18 @@
 /// <reference path="typings/index.d.ts" />
 
 import * as fs from 'fs';
-import {merge, prop, curry} from 'ramda';
+import {merge, prop, path, curry} from 'ramda';
 import * as Path from 'path';
 import {Observable} from 'rxjs';
 import {parseString} from 'xml2js';
 import * as stringifyOld from 'json-stable-stringify';
 
 interface StringifyOptions {
-    space?: number
+    space?:number
 }
 
 
-const stringify = (options:StringifyOptions = {}) => (obj: any) => stringifyOld(obj, options);
+const stringify = (options:StringifyOptions = {}) => (obj:any) => stringifyOld(obj, options);
 
 
 const getFilenameMetaData = (path:string) => ({
@@ -41,19 +41,37 @@ const readFileStream = (path:string = '', encoding:string = 'utf-8') =>
     });
 
 
+const writeFileStream = (path:string) => (data:string|Buffer) =>
+    Observable.create(function (observer) {
+        function writeFileStreamCB(e, file) {
+            if (e) return observer.error(e);
+
+            observer.next(merge(
+                getFilenameMetaData(path || ''),
+                {file}
+            ));
+            observer.complete();
+        }
+
+        fs.writeFile(path, data, writeFileStreamCB);
+    });
+
+
 const xmlToObservable = Observable.bindNodeCallback(parseString);
 
-// readFileStream('opml/webcomics.xml')
-//     .map(prop('file'))
-//     // .do(x => console.log({'rfs result':x}))
-//     .flatMap(xmlToObservable)
-//     .map(stringify({}))
-//     .subscribe(x => {console.log({x})});
-
+readFileStream('opml/webcomics.xml')
+    .map(prop('file'))
+    // .do(x => console.log({'rfs result':x}))
+    .flatMap(xmlToObservable)
+    .map(path(['opml', 'body']))
+    .map(stringify({space:2}))
+    .flatMap(writeFileStream('output/webcomics.json'))
+    .subscribe(x => {console.log({x})});
 
 
 export {
     readFileStream,
+    writeFileStream,
     xmlToObservable,
     stringify
 }
