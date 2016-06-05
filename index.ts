@@ -6,7 +6,7 @@ import * as URI from 'urijs';
 import {parseString} from 'xml2js';
 import {Subscriber, Observable} from 'rxjs';
 import * as stringifyOld from 'json-stable-stringify';
-import {map, flatten, merge, prop, path, compose, lt, length, sortBy} from 'ramda';
+import {keys, map, flatten, merge, prop, path, compose, lt, length, sortBy, values} from 'ramda';
 
 interface StringifyOptions {
     space?:number
@@ -159,6 +159,39 @@ const addSortableURI:(x:OutlineFeed) => OutlineFeed = x => merge(
 );
 
 
+const arrayToTable:(x:Array<OutlineFeed>) => string = x => {
+    const colHeadings = {
+        htmlUrl: 'Page',
+        text: 'Desc',
+        title: 'Title',
+        type: 'Type',
+        version: 'Version',
+        xmlUrl: 'URL',
+        sortableUrl: 'sortable',
+    };
+
+    const cells = x => map(
+        key => `<td>${ prop(key, x) }</td>`,
+        keys(colHeadings)
+    );
+
+    const toRow = x => `<tr>${ cells(x).join('\n') }</tr>`;
+
+    const rows = x.map(toRow).join('\n');
+
+    return `<table>
+  <thead>
+  <tr>
+    ${ map(x => `<td>${ x }</td>\n`, values(colHeadings)).join('\n') }
+  </tr>
+  </thead>
+  <tbody>
+    ${ rows }
+  </tbody>
+</table>`
+};
+
+
 readFileStream('opml/webcomics.xml')
     .map(prop('file'))
     // .do(x => console.log({'rfs result':x}))
@@ -177,8 +210,9 @@ readFileStream('opml/webcomics.xml')
     // .do(logObs('wtf is this'))
     .map(map(addSortableURI))
     .map(sortBy(prop('sortableUrl')))
-    .map(stringify({space: 2}))
-    .flatMap(writeFileStream('output/webcomics.json'))
+    // .map(stringify({space: 2}))
+    .map(arrayToTable)
+    .flatMap(writeFileStream('output/webcomics.html'))
     .subscribe(logObs('afterWrite'));
 
 
