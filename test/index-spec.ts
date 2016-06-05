@@ -62,3 +62,40 @@ test('better stringify', t => {
 
     t.end();
 });
+
+test('isFeedItem()', t => {
+    const exampleFeedParent = {
+        "$": {
+            "htmlUrl": "http://sgrblog.blogspot.com/",
+            "text": "A hundred dance moves per minute",
+            "title": "A hundred dance moves per minute",
+            "type": "rss",
+            "version": "RSS",
+            "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default"
+        }
+    };
+
+    t.equal(
+        index.isFeedItem(exampleFeedParent),
+        true,
+        'correctly recognizes feed items'
+    );
+
+    t.equal(
+        index.isFeedItem({
+            "$": {
+                "text": "webcomics",
+                "title": "webcomics"
+            },
+            "outline": [
+                exampleFeedParent,
+                exampleFeedParent,
+            ]
+        }),
+        false,
+        'correctly recognizes non-(feed items)'
+    );
+
+
+    t.end();
+});

@@ -1,7 +1,7 @@
 /// <reference path="typings/index.d.ts" />
 
 import * as fs from 'fs';
-import {merge, prop, path, head} from 'ramda';
+import {map, flatten, merge, prop, path, compose, lt, length} from 'ramda';
 import * as Path from 'path';
 import {Subscriber, Observable} from 'rxjs';
 import {parseString} from 'xml2js';
@@ -131,14 +131,28 @@ const writeFileStream = (path:string) => (data:string|Buffer) =>
 
 const xmlToObservable = Observable.bindNodeCallback(parseString);
 
+const isFeedItem: (x:OutlineFeedParent|OutlineFolderParent) => boolean = compose(
+    lt(0),
+    length,
+    path(['$', 'xmlUrl'])
+);
+
 readFileStream('opml/webcomics.xml')
     .map(prop('file'))
     // .do(x => console.log({'rfs result':x}))
     .flatMap(xmlToObservable)
     .map(path(['opml', 'body']))
-    .map(function getXAttrs(Outlines:Array<OutlineFolderParent>):Array<OutlineFeed> {
-
+    .map(function getXAttrs(outlines:Array<OutlineFolderParent>):Array<OutlineFeed> {
+        debugger;
+        return map(outline => {
+            debugger;
+            if (isFeedItem(outline)) {
+                return prop('$', outline)
+            }
+            return getXAttrs(prop('outline', outline));
+        }, outlines);
     })
+    .map(flatten)
     .map(stringify({space: 2}))
     .flatMap(writeFileStream('output/webcomics.json'))
     .subscribe(logObs('afterWrite'));
@@ -148,5 +162,6 @@ export {
     readFileStream,
     writeFileStream,
     xmlToObservable,
-    stringify
+    stringify,
+    isFeedItem
 }
