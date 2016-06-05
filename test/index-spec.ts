@@ -49,13 +49,13 @@ test('better stringify', t => {
     // );
 
     t.equal(
-        index.stringify({})({foo:'bar'}),
+        index.stringify({})({foo: 'bar'}),
         '{"foo":"bar"}',
         'curried & no options works'
     );
 
     t.equal(
-        index.stringify({})({foo:'bar'}),
+        index.stringify({})({foo: 'bar'}),
         '{"foo":"bar"}',
         'curried & no options works'
     );
@@ -96,6 +96,20 @@ test('isFeedItem()', t => {
         'correctly recognizes non-(feed items)'
     );
 
+
+    t.end();
+});
+
+test('create sortable URI from a regular URI', t => {
+    t.equal(
+        index.sortableURI('https://www.example.com/'),
+        'com.example.www/'
+    );
+
+    t.equal(
+        index.sortableURI('https://www.example.com/foo'),
+        'com.example.www/foo'
+    );
 
     t.end();
 });

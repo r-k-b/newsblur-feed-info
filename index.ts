@@ -1,12 +1,12 @@
 /// <reference path="typings/index.d.ts" />
 
 import * as fs from 'fs';
-import {map, flatten, merge, prop, path, compose, lt, length} from 'ramda';
 import * as Path from 'path';
-import {Subscriber, Observable} from 'rxjs';
+import * as URI from 'urijs';
 import {parseString} from 'xml2js';
+import {Subscriber, Observable} from 'rxjs';
 import * as stringifyOld from 'json-stable-stringify';
-import {first} from "rxjs/operator/first";
+import {map, flatten, merge, prop, path, compose, lt, length} from 'ramda';
 
 interface StringifyOptions {
     space?:number
@@ -142,6 +142,17 @@ function isFeedItem(x:OutlineFeedParent|OutlineFolderParent): x is OutlineFeedPa
 
 const getOutline:(x:OutlineFolderParent) => Array<OutlineFolderParent> = prop('outline');
 
+
+const sortableURI:(x:string) => string = x => {
+    const u = new URI(x);
+    return u.hostname()
+        .split('.')
+        .reverse()
+        .join('.')
+        .concat('/', u.segment().join('/'));
+};
+
+
 readFileStream('opml/webcomics.xml')
     .map(prop('file'))
     // .do(x => console.log({'rfs result':x}))
@@ -159,7 +170,7 @@ readFileStream('opml/webcomics.xml')
     })
     .map(stringify({space: 2}))
     .flatMap(writeFileStream('output/webcomics.json'))
-    .subscribe(logObs('afterWrite'));
+    /*.subscribe(logObs('afterWrite'))*/;
 
 
 export {
@@ -167,5 +178,6 @@ export {
     writeFileStream,
     xmlToObservable,
     stringify,
-    isFeedItem
+    isFeedItem,
+    sortableURI,
 }
