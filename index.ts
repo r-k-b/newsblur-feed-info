@@ -32,14 +32,9 @@ interface OutlineFolder {
 }
 
 interface OutlineFolderParent {
-    "$":OutlineFolder,
-    outline:Array<OutlineFeedParent>,
-}
-
-interface Outline {
+    "$"?:OutlineFolder,
     outline:Array<OutlineFeedParent> | Array<OutlineFolderParent>,
 }
-
 
 (function () { // sanity checking those types...
     const exampleFeedParent:OutlineFeedParent = {
@@ -65,7 +60,7 @@ interface Outline {
     };
 
     //noinspection JSUnusedLocalSymbols,JSMismatchedCollectionQueryUpdate
-    const exampleOutline:Array<Outline> = [
+    const exampleOutline:Array<OutlineFolderParent> = [
         {
             "outline": [
                 exampleFolderParent,
@@ -141,8 +136,8 @@ readFileStream('opml/webcomics.xml')
     // .do(x => console.log({'rfs result':x}))
     .flatMap(xmlToObservable)
     .map(path(['opml', 'body']))
-    .map(function getXAttrs(Outlines:Array<Outline>):Array<OutlineFeed> {
-        
+    .map(function getXAttrs(Outlines:Array<OutlineFolderParent>):Array<OutlineFeed> {
+
     })
     .map(stringify({space: 2}))
     .flatMap(writeFileStream('output/webcomics.json'))
