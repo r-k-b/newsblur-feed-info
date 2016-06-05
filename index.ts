@@ -1,15 +1,92 @@
 /// <reference path="typings/index.d.ts" />
 
 import * as fs from 'fs';
-import {merge, prop, path, curry} from 'ramda';
+import {merge, prop, path, head} from 'ramda';
 import * as Path from 'path';
-import {Observable} from 'rxjs';
+import {Subscriber, Observable} from 'rxjs';
 import {parseString} from 'xml2js';
 import * as stringifyOld from 'json-stable-stringify';
+import {first} from "rxjs/operator/first";
 
 interface StringifyOptions {
     space?:number
 }
+
+interface OutlineFeed {
+    htmlUrl:string,
+    text:string,
+    title:string,
+    type:string,
+    version:string,
+    xmlUrl:string,
+    folders?:Array<Array<string>>,
+}
+
+interface OutlineFeedParent {
+    "$":OutlineFeed,
+}
+
+interface OutlineFolder {
+    text:string,
+    title:string,
+}
+
+interface OutlineFolderParent {
+    "$":OutlineFolder,
+    outline:Array<OutlineFeedParent>,
+}
+
+interface Outline {
+    outline:Array<OutlineFeedParent> | Array<OutlineFolderParent>,
+}
+
+
+(function () { // sanity checking those types...
+    const exampleFeedParent:OutlineFeedParent = {
+        "$": {
+            "htmlUrl": "http://sgrblog.blogspot.com/",
+            "text": "A hundred dance moves per minute",
+            "title": "A hundred dance moves per minute",
+            "type": "rss",
+            "version": "RSS",
+            "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default"
+        }
+    };
+
+    const exampleFolderParent:OutlineFolderParent = {
+        "$": {
+            "text": "webcomics",
+            "title": "webcomics"
+        },
+        "outline": [
+            exampleFeedParent,
+            exampleFeedParent,
+        ]
+    };
+
+    //noinspection JSUnusedLocalSymbols,JSMismatchedCollectionQueryUpdate
+    const exampleOutline:Array<Outline> = [
+        {
+            "outline": [
+                exampleFolderParent,
+                exampleFolderParent,
+            ]
+        }
+    ];
+})();
+
+
+const logObs = (msg:string) => Subscriber.create(
+    function logNext(x) {
+        console.log({[`next ${msg}`]: x})
+    },
+    function logError(e) {
+        console.log({[`ERROR! ${msg}`]: e});
+    },
+    function logCompleted() {
+        console.log(`completed ${msg}`);
+    }
+);
 
 
 const stringify = (options:StringifyOptions = {}) => (obj:any) => stringifyOld(obj, options);
@@ -64,9 +141,12 @@ readFileStream('opml/webcomics.xml')
     // .do(x => console.log({'rfs result':x}))
     .flatMap(xmlToObservable)
     .map(path(['opml', 'body']))
-    .map(stringify({space:2}))
+    .map(function getXAttrs(Outlines:Array<Outline>):Array<OutlineFeed> {
+        
+    })
+    .map(stringify({space: 2}))
     .flatMap(writeFileStream('output/webcomics.json'))
-    .subscribe(x => {console.log({x})});
+    .subscribe(logObs('afterWrite'));
 
 
 export {
