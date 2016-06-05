@@ -71,7 +71,7 @@ test('isFeedItem()', t => {
             "title": "A hundred dance moves per minute",
             "type": "rss",
             "version": "RSS",
-            "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default"
+            "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default",
         }
     };
 
@@ -111,5 +111,31 @@ test('create sortable URI from a regular URI', t => {
         'com.example.www/foo'
     );
 
+    t.end();
+});
+
+test('add sortable URI to a Feed item', t => {
+    const exampleFeedItem = {
+        "htmlUrl": "http://sgrblog.blogspot.com/",
+        "text": "A hundred dance moves per minute",
+        "title": "A hundred dance moves per minute",
+        "type": "rss",
+        "version": "RSS",
+        "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default",
+    };
+
+    t.deepEqual(
+        index.addSortableURI(exampleFeedItem),
+        {
+            "htmlUrl": "http://sgrblog.blogspot.com/",
+            "text": "A hundred dance moves per minute",
+            "title": "A hundred dance moves per minute",
+            "type": "rss",
+            "version": "RSS",
+            "xmlUrl": "http://sgrblog.blogspot.com/feeds/posts/default",
+            "sortableUrl": "com.blogspot.sgrblog/feeds/posts/default",
+        },
+        'simple url gets added'
+    );
     t.end();
 });

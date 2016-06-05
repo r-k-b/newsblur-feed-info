@@ -8,6 +8,7 @@
   "globalDependencies": {
     "json-stable-stringify": "registry:dt/json-stable-stringify#1.0.0+20160317120654",
     "node": "registry:dt/node#6.0.0+20160602155235",
+    "urijs": "registry:dt/urijs#1.15.1+20160526132152",
     "xml2js": "registry:dt/xml2js#0.0.0+20160317120654"
   }
 }
