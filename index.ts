@@ -20,6 +20,7 @@ interface OutlineFeed {
     version:string,
     xmlUrl:string,
     folders?:Array<Array<string>>,
+    sortableUrl?:string,
 }
 
 interface OutlineFeedParent {
@@ -131,11 +132,15 @@ const writeFileStream = (path:string) => (data:string|Buffer) =>
 
 const xmlToObservable = Observable.bindNodeCallback(parseString);
 
-const isFeedItem: (x:OutlineFeedParent|OutlineFolderParent) => boolean = compose(
-    lt(0),
-    length,
-    path(['$', 'xmlUrl'])
-);
+function isFeedItem(x:OutlineFeedParent|OutlineFolderParent): x is OutlineFeedParent {
+    return compose(
+        lt(0),
+        length,
+        path(['$', 'xmlUrl'])
+    )(x)
+}
+
+const getOutline:(x:OutlineFolderParent) => Array<OutlineFolderParent> = prop('outline');
 
 readFileStream('opml/webcomics.xml')
     .map(prop('file'))
@@ -143,16 +148,15 @@ readFileStream('opml/webcomics.xml')
     .flatMap(xmlToObservable)
     .map(path(['opml', 'body']))
     .map(function getXAttrs(outlines:Array<OutlineFolderParent>):Array<OutlineFeed> {
-        debugger;
-        return map(outline => {
-            debugger;
-            if (isFeedItem(outline)) {
-                return prop('$', outline)
-            }
-            return getXAttrs(prop('outline', outline));
-        }, outlines);
+        return flatten<any>( // fixme: use proper types!
+            map(
+                outline => isFeedItem(outline) ?
+                    prop('$', outline) :
+                    getXAttrs(getOutline(outline)),
+                outlines
+            )
+        );
     })
-    .map(flatten)
     .map(stringify({space: 2}))
     .flatMap(writeFileStream('output/webcomics.json'))
     .subscribe(logObs('afterWrite'));
