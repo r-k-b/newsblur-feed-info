@@ -197,7 +197,7 @@ const excludeUnique = xs => {
 
     const keyCounts = countBy(identity, (xs.map(prop(primary))));
 
-    console.log({keyCounts});
+    // console.log({keyCounts});
 
     const keyCount = flip(prop)(keyCounts);
 
@@ -210,8 +210,9 @@ const excludeUnique = xs => {
     return filter(notUnique, xs)
 };
 
+const fileName = 'webcomics';
 
-const allItemsSorted$ = readFileStream('opml/webcomics.xml')
+const allItemsSorted$ = readFileStream(`opml/${ fileName }.xml`)
     .map(prop('file'))
     // .do(x => console.log({'rfs result':x}))
     .flatMap(xmlToObservable)
@@ -235,7 +236,7 @@ const allItemsSorted$ = readFileStream('opml/webcomics.xml')
 const printable$ = allItemsSorted$
     // .map(stringify({space: 2}))
     .map(arrayToTable)
-    .flatMap(writeFileStream('output/webcomics.html'));
+    .flatMap(writeFileStream(`output/${ fileName }.html`));
 
 printable$.subscribe(logObs('afterWrite'));
 
