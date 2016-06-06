@@ -6,7 +6,7 @@ import * as URI from 'urijs';
 import {parseString} from 'xml2js';
 import {Subscriber, Observable} from 'rxjs';
 import * as stringifyOld from 'json-stable-stringify';
-import {keys, map, flatten, merge, prop, path, compose, lt, length, sortBy, values} from 'ramda';
+import {identity, countBy, filter, not, flip, contains, uniqBy, keys, map, flatten, merge, prop, path, compose, lt, length, sortBy, values} from 'ramda';
 
 interface StringifyOptions {
     space?:number
@@ -192,7 +192,26 @@ const arrayToTable:(x:Array<OutlineFeed>) => string = x => {
 };
 
 
-readFileStream('opml/webcomics.xml')
+const excludeUnique = xs => {
+    const primary = 'xmlUrl';
+
+    const keyCounts = countBy(identity, (xs.map(prop(primary))));
+
+    console.log({keyCounts});
+
+    const keyCount = flip(prop)(keyCounts);
+
+    const notUnique = compose(
+        lt(1),
+        keyCount,
+        prop(primary)
+    );
+
+    return filter(notUnique, xs)
+};
+
+
+const allItemsSorted$ = readFileStream('opml/webcomics.xml')
     .map(prop('file'))
     // .do(x => console.log({'rfs result':x}))
     .flatMap(xmlToObservable)
@@ -210,10 +229,15 @@ readFileStream('opml/webcomics.xml')
     // .do(logObs('wtf is this'))
     .map(map(addSortableURI))
     .map(sortBy(prop('sortableUrl')))
+    .map(excludeUnique);
+
+
+const printable$ = allItemsSorted$
     // .map(stringify({space: 2}))
     .map(arrayToTable)
-    .flatMap(writeFileStream('output/webcomics.html'))
-    .subscribe(logObs('afterWrite'));
+    .flatMap(writeFileStream('output/webcomics.html'));
+
+printable$.subscribe(logObs('afterWrite'));
 
 
 export {
